@@ -169,6 +169,7 @@ class CircleSensorElement extends LitElement {
             return start;
           }
           val = this._calculateValueBetween(s1, s2, state);
+          break;
         }
       }
     }
