@@ -1,6 +1,9 @@
 Custom element for lovelace picture-elements card
 
 ![Circle sensor image](circle-sensor.png)
+![Circle sensor dark image](circle-sensor-dark.png)
+
+**Note: When including this file in your `ui-lovelace.yaml` you must use `type: module`**
 
 ## Config
 
@@ -8,6 +11,7 @@ Custom element for lovelace picture-elements card
 | ---- | ---- | ----------- | -------
 | type | string | `custom:circle-sensor-element` | **Required**
 | entity | string | `sensor.temperature` | **Required**
+| name | string | Name to display above sensor value | none
 | min | number | Minimum value | `0`
 | max | number | Maximum value | `100`
 | font_size | string | Base font size | `1em`

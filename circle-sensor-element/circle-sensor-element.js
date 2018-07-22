@@ -8,24 +8,22 @@ class CircleSensorElement extends LitElement {
       hass: Object,
       config: Object,
       state: Object,
-      dashArray: String,
+      dashArray: String
     }
   }
 
-  _render({ state, dashArray }) {
+  _render({ state, dashArray, config }) {
     return html`
       <style>
           :host {
             cursor: pointer;
           }
-          svg {
-            transform: rotate(-90deg);
-          }
 
           .container {
             position: relative;
             height: 100%;
-            width: 100%;
+            display: flex;
+            flex-direction: column;
           }
 
           .labelContainer {
@@ -44,22 +42,36 @@ class CircleSensorElement extends LitElement {
             display: flex;
             line-height: 1;
           }
+          
+          #label.bold {
+            font-weight: bold;
+          }
+          
+          #label, #name {
+            margin: 1% 0;
+          }
 
-          .text {
+          .text, #name {
             font-size: 100%;
           }
+          
           .unit {
             font-size: 75%;
           }
 
       </style>
-      <div class="container" id="container">
+      <div class="container" id="container" on-click="${() => this._click()}">
         <svg viewbox="0 0 200 200" id="svg">
-          <circle id="circle" cx="50%" cy="50%" r="45%" fill="#FFF" stroke="#F82" 
-            stroke-width="6" stroke-dasharray$="${dashArray}"/>
+          <circle id="circle" cx="50%" cy="50%" r="45%"
+            fill$="${config.fill || 'rgba(255, 255, 255, .75)'}"
+            stroke$="${config.stroke_color || '#03a9f4'}"
+            stroke-dasharray$="${dashArray}"
+            stroke-width$="${config.stroke_width || 6}" 
+            transform="rotate(-90 100 100)"/>
         </svg>
         <span class="labelContainer">
-          <span id="label">
+          ${config.name != null ? html`<span id="name">${config.name}</span>` : ''}
+          <span id="label" class$="${!!config.name ? 'bold' : ''}">
             <span class="text">${state.state}</span>
             <span class="unit">${state.attributes.unit_of_measurement}</span>
           </span>
@@ -68,25 +80,23 @@ class CircleSensorElement extends LitElement {
     `;
   }
 
-  constructor() {
-    super();
-    this._clickListener = this._click.bind(this);
+  _createRoot() {
+    // Remove once lovelace api can inform custom components if they are a card or an element
+    this.isElement = true;
+    const shadow = this.attachShadow({ mode: 'open' })
+    if (this.isElement) {
+      return shadow;
+    }
+    const card = document.createElement('ha-card');
+    shadow.appendChild(card);
+    return card;
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.addEventListener('click', this._clickListener);
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.removeEventListener('click', this._clickListener);
-  }
-
-  ready() {
-    super.ready();
+  _didRender() {
     this.circle = this._root.querySelector('#circle');
-    this._updateConfig();
+    if (this.config) {
+      this._updateConfig();
+    }
   }
 
   setConfig(config) {
@@ -104,11 +114,7 @@ class CircleSensorElement extends LitElement {
   }
 
   _updateConfig() {
-    this.circle.setAttribute('fill', this.config.fill || 'rgba(255, 255, 255, .75)');
-    this._root.querySelector('#label').style.fontSize = this.config.font_size || '1em';
-    if (!isNaN(this.config.stroke_width)) {
-      this.circle.setAttribute('stroke-width', this.config.stroke_width);
-    }
+    this._root.querySelector('.labelContainer').style.fontSize = this.config.font_size || '1em';
   }
 
   set hass(hass) {
@@ -135,8 +141,8 @@ class CircleSensorElement extends LitElement {
       });
     }
 
-    const stroke = this._calculateStrokeColor(state, colorStops);
     if (this.circle) {
+      const stroke = this._calculateStrokeColor(state, colorStops);
       this.circle.setAttribute('stroke', stroke);
     }
   }
@@ -193,11 +199,8 @@ class CircleSensorElement extends LitElement {
       c = `${c[0]}${c[0]}${c[1]}${c[1]}${c[2]}${c[2]}`;
     }
 
-    const r = parseInt(c.substr(0, 2), 16);
-    const g = parseInt(c.substr(2, 2), 16);
-    const b = parseInt(c.substr(4, 2), 16);
-
-    return [r, g, b];
+    const [r, g, b] = c.match(/.{2}/g);
+    return [parseInt(r, 16), parseInt(g, 16), parseInt(b, 16)];
   }
 
   _padZero(val) {
@@ -207,17 +210,14 @@ class CircleSensorElement extends LitElement {
     return val.substr(0, 2);
   }
 
-  _fire(type, detail, options) {
-    const node = this.shadowRoot;
-    options = options || {};
-    detail = (detail === null || detail === undefined) ? {} : detail;
+  _fire(type, detail) {
     const event = new Event(type, {
-      bubbles: options.bubbles === undefined ? true : options.bubbles,
-      cancelable: Boolean(options.cancelable),
-      composed: options.composed === undefined ? true : options.composed
+      bubbles: true,
+      cancelable: false,
+      composed: true
     });
-    event.detail = detail;
-    node.dispatchEvent(event);
+    event.detail = detail || {};
+    this.shadowRoot.dispatchEvent(event);
     return event;
   }
 }
