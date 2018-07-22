@@ -81,10 +81,8 @@ class CircleSensorElement extends LitElement {
   }
 
   _createRoot() {
-    // Remove once lovelace api can inform custom components if they are a card or an element
-    this.isElement = true;
     const shadow = this.attachShadow({ mode: 'open' })
-    if (this.isElement) {
+    if (!this.config.show_card) {
       return shadow;
     }
     const card = document.createElement('ha-card');
@@ -114,7 +112,9 @@ class CircleSensorElement extends LitElement {
   }
 
   _updateConfig() {
-    this._root.querySelector('.labelContainer').style.fontSize = this.config.font_size || '1em';
+    const container = this._root.querySelector('.labelContainer');
+    container.style.color = this.config.font_color || 'var(--primary-text-color)';
+    container.style.fontSize = this.config.font_size || '1em';
   }
 
   set hass(hass) {

@@ -2,6 +2,7 @@ Custom element for lovelace picture-elements card
 
 ![Circle sensor image](circle-sensor.png)
 ![Circle sensor dark image](circle-sensor-dark.png)
+![Circle Sensor Horizontal Stack](circle-sensor-cards.png)
 
 **Note: When including this file in your `ui-lovelace.yaml` you must use `type: module`**
 
@@ -11,10 +12,12 @@ Custom element for lovelace picture-elements card
 | ---- | ---- | ----------- | -------
 | type | string | `custom:circle-sensor-element` | **Required**
 | entity | string | `sensor.temperature` | **Required**
+| show_card | boolean | Render as a card | `false`
 | name | string | Name to display above sensor value | none
 | min | number | Minimum value | `0`
 | max | number | Maximum value | `100`
 | font_size | string | Base font size | `1em`
+| font_color | string | Font color | `#0D0D0D`
 | fill | string | Background color of circle | `rgba(255, 255, 255, .75)`
 | stroke_width | number | width of circle value indication ring | `6`
 | gradient | boolean | whether to smoothly transition between color stops | `false`
