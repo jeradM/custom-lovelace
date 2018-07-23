@@ -1,4 +1,4 @@
-##This component was renamed `circle-sensor-card` is hosted at https://github.com/custom-cards/circle-sensor-card.
+### This component was renamed `circle-sensor-card` and is hosted at https://github.com/custom-cards/circle-sensor-card.
 
 Custom element for lovelace picture-elements card
 
